@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Presupuesto de Receta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      font-size: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background: #eee;
+    }
+    input {
+      width: 100%;
+      border: none;
+      text-align: center;
+      font-size: 14px;
+    }
+    .resumen {
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .fila {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Presupuesto de Receta</h1>
+
+<table id="tabla">
+  <tr>
+    <th>Cantidad</th>
+    <th>P. Unit</th>
+    <th>Total</th>
+  </tr>
+  <script>
+    // 10 filas (8 + 2 adicionales)
+    for (let i = 0; i < 10; i++) {
+      document.write(`
+        <tr>
+          <td><input type="number" step="any" oninput="calcular()"></td>
+          <td><input type="number" step="any" oninput="calcular()"></td>
+          <td class="totalFila">0.00</td>
+        </tr>
+      `);
+    }
+  </script>
+</table>
+
+<div class="resumen">
+  <div class="fila"><span>Alimentos (30%)</span><span id="alimento">0.00</span></div>
+  <div class="fila"><span>Mano de obra (18%)</span><span id="mano">0.00</span></div>
+  <div class="fila"><span>Gastos generales (20%)</span><span id="gastos">0.00</span></div>
+  <div class="fila"><span>Beneficio neto (32%)</span><span id="beneficio">0.00</span></div>
+  <div class="fila total"><span>Precio de venta (100%)</span><span id="venta">0.00</span></div>
+  <hr>
+  <div class="fila"><span>Número de piezas</span><input type="number" id="piezas" min="1" placeholder="Ej: 12" oninput="calcular()" style="width:80px;text-align:center"></div>
+  <div class="fila total"><span>Precio por pieza</span><span id="precioPieza">0.00</span></div>
+</div>
+
+<script>
+function calcular() {
+  let filas = document.querySelectorAll("#tabla tr");
+  let totalAlimentos = 0;
+
+  // 1. Calcular total de alimentos (30%)
+  filas.forEach((fila, i) => {
+    if (i === 0) return;
+    let inputs = fila.querySelectorAll("input");
+    if (inputs.length === 2) {
+      let cantidad = parseFloat(inputs[0].value) || 0;
+      let precio = parseFloat(inputs[1].value) || 0;
+      let total = (cantidad * precio) / 1000;
+      fila.querySelector(".totalFila").innerText = total.toFixed(2);
+      totalAlimentos += total;
+    }
+  });
+
+  // 2. Sumar ajuste fijo antes de porcentajes
+  let alimentosAjustados = totalAlimentos + 0.09;
+  document.getElementById("alimento").innerText = alimentosAjustados.toFixed(2);
+
+  // 3. Hallar el 100% usando regla de 3
+  let subtotalReal = alimentosAjustados * 100 / 30;
+
+  // 4. Calcular porcentajes desde el subtotal real
+  let mano = subtotalReal * 0.18;
+  let gastos = subtotalReal * 0.20;
+  let beneficio = subtotalReal * 0.32;
+
+  // 5. Mostrar resultados
+  document.getElementById("mano").innerText = mano.toFixed(2);
+  document.getElementById("gastos").innerText = gastos.toFixed(2);
+  document.getElementById("beneficio").innerText = beneficio.toFixed(2);
+  document.getElementById("venta").innerText = subtotalReal.toFixed(2);
+
+  // 6. Precio por pieza
+  let piezas = parseFloat(document.getElementById("piezas").value) || 0;
+  let precioPieza = piezas > 0 ? subtotalReal / piezas : 0;
+  document.getElementById("precioPieza").innerText = precioPieza.toFixed(2);
+}
+</script>
+
+</body>
+</html>
