@@ -63,8 +63,8 @@
     <th>Total</th>
   </tr>
   <script>
-    // 10 filas (8 + 2 adicionales)
-    for (let i = 0; i < 10; i++) {
+    // 15 filas (10 + 5 adicionales)
+    for (let i = 0; i < 15; i++) {
       document.write(`
         <tr>
           <td><input type="number" step="any" oninput="calcular()"></td>
@@ -82,8 +82,14 @@
   <div class="fila"><span>Gastos generales (20%)</span><span id="gastos">0.00</span></div>
   <div class="fila"><span>Beneficio neto (32%)</span><span id="beneficio">0.00</span></div>
   <div class="fila total"><span>Precio de venta (100%)</span><span id="venta">0.00</span></div>
+
   <hr>
-  <div class="fila"><span>Número de piezas</span><input type="number" id="piezas" min="1" placeholder="Ej: 12" oninput="calcular()" style="width:80px;text-align:center"></div>
+
+  <div class="fila">
+    <span>Número de piezas</span>
+    <input type="number" id="piezas" min="1" placeholder="Ej: 12"
+           oninput="calcular()" style="width:80px;text-align:center">
+  </div>
   <div class="fila total"><span>Precio por pieza</span><span id="precioPieza">0.00</span></div>
 </div>
 
@@ -92,7 +98,7 @@ function calcular() {
   let filas = document.querySelectorAll("#tabla tr");
   let totalAlimentos = 0;
 
-  // 1. Calcular total de alimentos (30%)
+  // 1. Sumar ingredientes
   filas.forEach((fila, i) => {
     if (i === 0) return;
     let inputs = fila.querySelectorAll("input");
@@ -105,25 +111,24 @@ function calcular() {
     }
   });
 
-  // 2. Sumar ajuste fijo antes de porcentajes
+  // 2. Ajuste fijo (+0.09)
   let alimentosAjustados = totalAlimentos + 0.09;
   document.getElementById("alimento").innerText = alimentosAjustados.toFixed(2);
 
-  // 3. Hallar el 100% usando regla de 3
+  // 3. Regla de 3 (30% → 100%)
   let subtotalReal = alimentosAjustados * 100 / 30;
 
-  // 4. Calcular porcentajes desde el subtotal real
+  // 4. Porcentajes desde el subtotal real
   let mano = subtotalReal * 0.18;
   let gastos = subtotalReal * 0.20;
   let beneficio = subtotalReal * 0.32;
 
-  // 5. Mostrar resultados
   document.getElementById("mano").innerText = mano.toFixed(2);
   document.getElementById("gastos").innerText = gastos.toFixed(2);
   document.getElementById("beneficio").innerText = beneficio.toFixed(2);
   document.getElementById("venta").innerText = subtotalReal.toFixed(2);
 
-  // 6. Precio por pieza
+  // 5. Precio por pieza
   let piezas = parseFloat(document.getElementById("piezas").value) || 0;
   let precioPieza = piezas > 0 ? subtotalReal / piezas : 0;
   document.getElementById("precioPieza").innerText = precioPieza.toFixed(2);
